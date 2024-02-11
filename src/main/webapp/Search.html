@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Search Form</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<form id="searchStudentForm">
+    <label for="searchString">Search Students:</label>
+    <input type="text" id="searchString" name="searchString" placeholder="Enter name to search">
+    <input type="submit" value="Search">
+</form>
+
+<h2>Search Results</h2>
+<table id="searchResultsTable">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Major</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    // Event listener for form submission
+    $("#searchStudentForm").submit(function (e) {
+        e.preventDefault();
+        searchStudents();
+    });
+
+    // Function to search students based on input string
+    function searchStudents() {
+        var searchString = $("#searchString").val();
+        $.ajax({
+            url: "http://localhost:8080/Silva_Test3/students/search/" + searchString,
+            type: 'GET',
+            success: function (students) {
+                displaySearchResults(students);
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    // Function to display search results in a table
+    function displaySearchResults(students) {
+        var tableBody = $("#searchResultsTable tbody");
+        tableBody.empty(); // Clear existing table rows
+        students.forEach(function (student) {
+            var row = "<tr><td>" + student.id + "</td><td>" + student.name + "</td><td>" + student.age + "</td><td>" + student.major + "</td></tr>";
+            tableBody.append(row);
+        });
+    }
+</script>
+
+</body>
+</html>
