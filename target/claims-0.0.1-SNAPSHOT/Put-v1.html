@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Information Change Form</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<form id="updateStudentForm">
+    <label for="id">Student ID:</label>
+    <input type="number" id="id" name="id" required><br>
+    <label for="name">New Name:</label>
+    <input type="text" id="name" name="name" maxlength="28" required><br>
+    <label for="age">New Age:</label>
+    <input type="number" id="age" name="age" required min="18" max="100"><br>
+    <label for="major">New Major:</label>
+    <input type="text" id="major" name="major" maxlength="28" required><br>
+    <input type="submit" value="Update Student">
+</form>
+
+<p id="validationMessage"></p>
+
+<h2>Existing Students</h2>
+<table id="studentsTable">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Major</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    // Function to fetch and display existing students on page load
+    $(document).ready(function () {
+        fetchStudents();
+    });
+
+    // Event listener for form submission
+    $("#updateStudentForm").submit(function (e) {
+        e.preventDefault();
+        // Validate form inputs
+        if (validateForm()) {
+            updateStudent();
+        }
+    });
+
+    // Function to validate form inputs
+    function validateForm() {
+        var id = $("#id").val();
+        var name = $("#name").val();
+        var age = $("#age").val();
+        var major = $("#major").val();
+
+        // Validation rules
+       if (name.length === 0 || age.length === 0) {
+                $("#validationMessage").text("Name and age cannot be empty.");
+                return;
+            }
+
+            if (name.length >= 20) {
+                $("#validationMessage").text("Name should be less than 20 characters.");
+                return;
+            }
+
+            if (isNaN(age) || age < 13 || age > 89) {
+                $("#validationMessage").text("Age should be an integer between 13 and 89.");
+                return;
+            }
+            
+            // If all validations pass, proceed with the AJAX call
+            var studentData = {
+                name: name,
+                age: age,
+                major: $("#major").val()
+            };
+           }
+
+    // Function to update student information
+    function updateStudent() {
+        var studentData = {
+            name: $("#name").val(),
+            age: $("#age").val(),
+            major: $("#major").val()
+        };
+        var studentId = $("#id").val();
+        $.ajax({
+            url: "http://localhost:8080/Silva_Test3/students/" + studentId,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(studentData),
+            success: function (result) {
+                // Update successful, fetch and display updated student list
+                fetchStudents();
+                $("#validationMessage").text("Student updated successfully!");
+            },
+            error: function (error) {
+                console.log(error);
+                $("#validationMessage").text("Error updating student. Please try again.");
+            }
+        });
+    }
+
+    // Function to fetch and display existing students
+    function fetchStudents() {
+        $.ajax({
+            url: "http://localhost:8080/Silva_Test3/students",
+            type: 'GET',
+            success: function (students) {
+                displayStudents(students);
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    // Function to display students in a table
+    function displayStudents(students) {
+        var tableBody = $("#studentsTable tbody");
+        tableBody.empty(); // Clear existing table rows
+        students.forEach(function (student) {
+            var row = "<tr><td>" + student.id + "</td><td>" + student.name + "</td><td>" + student.age + "</td><td>" + student.major + "</td></tr>";
+            tableBody.append(row);
+        });
+    }
+</script>
+
+</body>
+</html>
